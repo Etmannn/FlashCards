@@ -1,14 +1,13 @@
-# In progress
-
-from fuzzywuzzy import fuzz
-import pickle
 import os
+import pickle
 import random
+from fuzzywuzzy import fuzz
 
+adddir = ''
 
 # List quizes given a username
 def list(username):
-    options = os.listdir(f"userfiles\\{username}")
+    options = os.listdir(f"userfiles/{username}")
     for option in options:
         if ".pkl" not in option:
             options.remove(option)
@@ -20,7 +19,7 @@ def list(username):
         n += 1
     print("---------------\n")
 
-    soptions = os.listdir(f"userfiles\\{username}\\shared")
+    soptions = os.listdir(f"userfiles/{username}/shared")
     if len(soptions) > 0:
         n = 0
         print("Shared Quizes:\n---------------")
@@ -34,8 +33,8 @@ def list(username):
 # Select a quiz given a username
 def quizselect(username):
     list(username=username)
-    options = os.listdir(f"userfiles\\{username}")
-    soptions = os.listdir(f"userfiles\\{username}\\shared")
+    options = os.listdir(f"userfiles/{username}")
+    soptions = os.listdir(f"userfiles/{username}/shared")
 
     validinput = False
     while validinput == False:
@@ -46,9 +45,9 @@ def quizselect(username):
         else:
             try:
                 if len(str(choice)) == 1:
-                    file = f"userfiles\\{username}\\{options[int(choice)]}"
+                    file = f"userfiles/{username}/{options[int(choice)]}"
                 if len(str(choice)) == 2:
-                    file = f"userfiles\\{username}\\shared\\{soptions[int(choice)]}"
+                    file = f"userfiles/{username}/shared/{soptions[int(choice)]}"
             except IndexError:
                 print("Not a valid option")
             else:

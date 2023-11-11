@@ -14,7 +14,7 @@ quizname = input("Input Quiz Name: ")
 quizname = quizname.replace(" ", "_")
 
 # Set file location
-file = str(f"userfiles\\{username}\\{quizname}.pkl")
+file = str(f"userfiles/{username}/{quizname}.pkl")
 
 # Input questions and answers
 while inputing == True:
@@ -28,11 +28,11 @@ while inputing == True:
         Quiz_Details["A"].append(An)
 
 # Find or create folder
-if os.path.isdir(f"userfiles\\{username}"):
+if os.path.isdir(f"userfiles/{username}"):
     pass
 else:
-    os.mkdir(f"userfiles\\{username}")
-    os.mkdir(f"userfiles\\{username}\\shared")
+    os.mkdir(f"userfiles/{username}")
+    os.mkdir(f"userfiles/{username}/shared")
 
 # Dump dictionary into pickle file
 with open(file, "wb") as f:
