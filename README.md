@@ -3,10 +3,10 @@
 ## This is my attempt to create a product similar to Quizlet
 
 ### It uses python and includes 3 main modes:
-#####Write: 
+##### Write: 
 Manually write answers
-#####Multichoice: 
+##### Multichoice: 
 Select out of 4 possible answers
-#####Learn: 
+##### Learn: 
 Systematically go through using both Write and Multichoice modes.
 
