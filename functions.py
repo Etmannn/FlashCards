@@ -3,7 +3,6 @@ import pickle
 import random
 from fuzzywuzzy import fuzz
 
-adddir = ''
 
 # List quizes given a username
 def list(username):
