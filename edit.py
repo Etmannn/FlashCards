@@ -14,58 +14,48 @@ file = functions.quizselect(username=username)
 with open(file, "rb") as f:
     Quiz_Details = pickle.load(f)
 
-# Find how many questions there are
-qn = int(len(Quiz_Details["Q"]))
+while editing:
+    # Get amout of questions
+    qn = len(Quiz_Details["Q"])
 
-# print questions
-print("\n_______________")
-for question in range(0, qn):
-    print(f"\n{Quiz_Details['Q'][question]}: {Quiz_Details['A'][question]}")
-print("_______________")
+    option = int(input("Edit(1), Add(2), Remove(3): "))
 
-# Select and edit Questions and answers
-while editing == True:
-    # Select what you want to edit
-    choice1 = input("Would you like to edit a question(1) or an answer(2)?: ")
+    for i in range(qn):
+        print(f"{i}.) {Quiz_Details['Q'][i]} -> {Quiz_Details['A'][i]}")
 
-    # Edit a question
-    if choice1 == "1":
-        num = 0
-        for i in Quiz_Details["Q"]:
-            num += 1
-            print(f"{i}({num})")
-        try:
-            choice2 = int(input("Input choice: ")) - 1
-        except ValueError:
-            pass
+    if option == 1:
+        choice1 = int(input("Select Question to edit: "))
+
+        print(f"{Quiz_Details['Q'][choice1]} -> {Quiz_Details['A'][choice1]}")
+
+        choice2 = int(input("Choose what to edit: Question(1) or Answer(2): "))
+        if choice2 == 1:
+            choice2 = "Q"
         else:
-            choice3 = input("Input new question: ")
-            Quiz_Details["Q"][choice2] = choice3
-            repeat = input("Anything else(y/n): ").lower()
-            if repeat == "y":
-                pass
-            else:
-                editing = False
+            choice2 = "A"
 
-    # Edit an answer
-    if choice1 == "2":
-        num = 0
-        for i in Quiz_Details["A"]:
-            num += 1
-            print(f"{i}({num})")
-        try:
-            choice2 = int(input("Input choice: ")) - 1
-        except ValueError:
-            pass
-        else:
-            choice3 = input("Input new answer: ")
-            Quiz_Details["A"][choice2] = choice3
-            repeat = input("Anything else(y/n): ").lower()
-            if repeat == "y":
-                pass
-            else:
-                editing = False
+        print(f"Original: {Quiz_Details[choice2][choice1]}")
+        new = input("Input New Question/Answer: ")
 
-# Dump info into pickle file
+        Quiz_Details[choice2][choice1] = new
+        print(f"{Quiz_Details['Q'][choice1]} -> {Quiz_Details['A'][choice1]}")
+
+    if option == 2:
+        new = input("Input Question: ")
+        new2 = input("Input Answer: ")
+
+        Quiz_Details["Q"].append(new)
+        Quiz_Details["A"].append(new2)
+        print(f"{Quiz_Details['Q'][qn]} -> {Quiz_Details['A'][qn]}")
+
+    if option == 3:
+        choice1 = int(input("Select Question to remove: "))
+        del Quiz_Details["Q"][choice1]
+        del Quiz_Details["A"][choice1]
+
+    loop = input("Would you like to edit anything else(y/n)")
+    if loop == "n":
+        editing = False
+
 with open(file, "wb") as f:
     pickle.dump(Quiz_Details, f)

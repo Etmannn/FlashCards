@@ -23,7 +23,7 @@ while inputing == True:
     if Qu == "done":
         inputing = False
     else:
-        An = input(f"Input Answer for Question number {num}: ").lower()
+        An = input(f"Input Answer for Question number {num}: ")
         Quiz_Details["Q"].append(Qu)
         Quiz_Details["A"].append(An)
 
