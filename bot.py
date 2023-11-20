@@ -26,4 +26,5 @@ async def help(ctx):
     await ctx.send("can't help yet")
 
 
-bot.run(secretvars.token)
+token = secretvars.token()
+bot.run(token)
