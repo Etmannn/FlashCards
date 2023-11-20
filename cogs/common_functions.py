@@ -47,7 +47,7 @@ async def quizselect(ctx, username):
             choice = await ctx.bot.wait_for("message", check=check, timeout=30.0)
             choice = choice.content
         except asyncio.TimeoutError:
-            print("You took to long to respond.")
+            print("You took too long to respond.")
         else:
             try:
                 if len(str(choice)) == 1:
@@ -91,6 +91,9 @@ async def answercheck(ctx, Cans: str, Ians: str, perfect: str):
 
 # Ask a question in a write format
 async def write(ctx, file, question):
+    def check(message):
+        return message.author == ctx.author and message.channel == ctx.channel
+        
     with open(file, "rb") as f:
         Quiz_Details = pickle.load(f)
 
@@ -104,6 +107,13 @@ async def write(ctx, file, question):
     await ctx.send(output)
 
     ans = input("Input answer: ").lower()
+    try:
+        await  ctx.send("Input answer: ")
+        ans = ctx.bot.wait_for('message', check = check, timeout = 30.0)
+        ans = ans.content
+    except asyncio.TimeoutError:
+        print("You took too long to respond.")
+    
     final, pc = answercheck(ctx, Quiz_Details["A"][question], ans, "n")
     if final == Quiz_Details["A"][question]:
         if pc == "c":
@@ -122,6 +132,9 @@ async def write(ctx, file, question):
 
 # ask a question in a multi-choice format
 async def mutlichoice(ctx, file, question):
+    def check(message):
+        return message.author == ctx.author and message.channel == ctx.channel
+        
     letter = ["A", "B", "C", "D"]
 
     with open(file, "rb") as f:
@@ -145,8 +158,14 @@ async def mutlichoice(ctx, file, question):
 
     for i in range(0, 4):
         await ctx.send(f"{letter[i]}) {mchoices[i]}")
-
-    letterans = input("Input answer: ").lower()
+        
+    try:
+        await ctx.send("Input answer: ")
+        letterans = ctx.bot.wait_for('message', check = check, timeout=30.0)
+        letterans = letterans.content
+    except asyncio.TimeoutError:
+        print('You took too long to respond.')
+    
     ans = ""
 
     if letterans == "a":
