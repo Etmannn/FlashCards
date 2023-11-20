@@ -1,8 +1,8 @@
 import discord
 from discord.ext import commands
-import secretvars
 import os
 from cogs import common_functions
+import secretvars
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -26,4 +26,4 @@ async def help(ctx):
     await ctx.send("can't help yet")
 
 
-bot.run(os.environ['TOKEN'])
+bot.run(secretvars.token)
