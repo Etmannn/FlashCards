@@ -1,11 +1,11 @@
 import os
 import shutil
 import pickle
-import functions
+import common_functions
 
 username = input("Input username: ")
 
-file = functions.quizselect(username=username)
+file = common_functions.quizselect(username=username)
 
 with open(file, "rb") as f:
     Quiz_Details = pickle.load(f)

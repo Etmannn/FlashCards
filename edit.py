@@ -1,5 +1,5 @@
 import pickle
-import functions
+import common_functions
 
 # Intialize vars
 editing = True
@@ -8,7 +8,7 @@ editing = True
 username = input("Input Username: ")
 
 # Select Quiz
-file = functions.quizselect(username=username)
+file = common_functions.quizselect(username=username)
 
 # Open file
 with open(file, "rb") as f:

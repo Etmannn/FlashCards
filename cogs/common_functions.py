@@ -2,45 +2,52 @@ import os
 import pickle
 import random
 from fuzzywuzzy import fuzz
+import discord
+import asyncio
 
 
 # List quizes given a username
-def list(username):
+async def list(ctx, username):
     options = os.listdir(f"userfiles/{username}")
     for option in options:
         if ".pkl" not in option:
             options.remove(option)
     n = 0
-    print("My Quizes:\n---------------")
+    await ctx.send("My Quizes:\n---------------")
     for i in options:
         i = i.replace(".pkl", "")
-        print(f"{i}({n})")
+        await ctx.send(f"{i}({n})")
         n += 1
-    print("---------------\n")
+    await ctx.send("---------------\n")
 
     soptions = os.listdir(f"userfiles/{username}/shared")
     if len(soptions) > 0:
         n = 0
-        print("Shared Quizes:\n---------------")
+        await ctx.send("Shared Quizes:\n---------------")
         for i in soptions:
             i = i.replace(".pkl", "")
-            print(f"{i}(0{n})")
+            await ctx.send(f"{i}(0{n})")
             n += 1
-        print("---------------")
+        await ctx.send("---------------")
 
 
 # Select a quiz given a username
-def quizselect(username):
-    list(username=username)
+async def quizselect(ctx, username):
+    def check(message):
+        return message.author == ctx.author and message.channel == ctx.channel
+
+    await list(ctx, username=username)
     options = os.listdir(f"userfiles/{username}")
     soptions = os.listdir(f"userfiles/{username}/shared")
 
     validinput = False
     while validinput == False:
         try:
-            choice = str(input("Choose a quiz: "))
-        except ValueError:
-            print("Choose with a number(displayed in parenthesis at the end)")
+            await ctx.send("Choose a quiz: ")
+            choice = await ctx.bot.wait_for("message", check=check, timeout=30.0)
+            choice = choice.content
+        except asyncio.TimeoutError:
+            print("You took to long to respond.")
         else:
             try:
                 if len(str(choice)) == 1:
@@ -48,7 +55,7 @@ def quizselect(username):
                 if len(str(choice)) == 2:
                     file = f"userfiles/{username}/shared/{soptions[int(choice)]}"
             except IndexError:
-                print("Not a valid option")
+                await ctx.send("Not a valid option")
             else:
                 validinput = True
 
@@ -56,7 +63,7 @@ def quizselect(username):
 
 
 # Check how close an answer is to correct
-def answercheck(Cans: str, Ians: str, perfect: str):
+async def answercheck(ctx, Cans: str, Ians: str, perfect: str):
     if perfect == "n":
         if len(Cans) < 4:
             threshold = 100
@@ -83,7 +90,7 @@ def answercheck(Cans: str, Ians: str, perfect: str):
 
 
 # Ask a question in a write format
-def write(file, question):
+async def write(ctx, file, question):
     with open(file, "rb") as f:
         Quiz_Details = pickle.load(f)
 
@@ -94,25 +101,27 @@ def write(file, question):
     else:
         output = f"\n{Quiz_Details['Q'][question]}?"
 
-    print(output)
+    await ctx.send(output)
 
     ans = input("Input answer: ").lower()
-    final, pc = answercheck(Quiz_Details["A"][question], ans, "n")
+    final, pc = answercheck(ctx, Quiz_Details["A"][question], ans, "n")
     if final == Quiz_Details["A"][question]:
         if pc == "c":
-            print("Correct!")
+            await ctx.send("Correct!")
             correct += 1
         if pc == "nq":
-            print(f"Not quite but close enough. The correct answer is {final}.")
+            await ctx.send(
+                f"Not quite but close enough. The correct answer is {final}."
+            )
             correct += 1
     else:
-        print("False")
+        await ctx.send("False")
 
     return correct
 
 
 # ask a question in a multi-choice format
-def mutlichoice(file, question):
+async def mutlichoice(ctx, file, question):
     letter = ["A", "B", "C", "D"]
 
     with open(file, "rb") as f:
@@ -125,7 +134,7 @@ def mutlichoice(file, question):
     else:
         output = f"\n{Quiz_Details['Q'][question]}?"
 
-    print(output)
+    await ctx.send(output)
 
     correct_ans = Quiz_Details["A"][question]
     mchoices = [correct_ans]
@@ -135,7 +144,7 @@ def mutlichoice(file, question):
     random.shuffle(mchoices)
 
     for i in range(0, 4):
-        print(f"{letter[i]}) {mchoices[i]}")
+        await ctx.send(f"{letter[i]}) {mchoices[i]}")
 
     letterans = input("Input answer: ").lower()
     ans = ""
@@ -155,15 +164,17 @@ def mutlichoice(file, question):
     else:
         ans = letterans
 
-    final, pc = answercheck(Quiz_Details["A"][question], ans, "n")
+    final, pc = answercheck(ctx, Quiz_Details["A"][question], ans, "n")
     if final == Quiz_Details["A"][question]:
         if pc == "c":
-            print("Correct!")
+            await ctx.send("Correct!")
             correct += 1
         if pc == "nq":
-            print(f"Not quite but close enough. The correct answer is {final}.")
+            await ctx.send(
+                f"Not quite but close enough. The correct answer is {final}."
+            )
             correct += 1
     else:
-        print("False")
+        await ctx.send("False")
 
     return correct
