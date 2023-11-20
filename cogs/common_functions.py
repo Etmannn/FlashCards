@@ -93,7 +93,7 @@ async def answercheck(ctx, Cans: str, Ians: str, perfect: str):
 async def write(ctx, file, question):
     def check(message):
         return message.author == ctx.author and message.channel == ctx.channel
-        
+
     with open(file, "rb") as f:
         Quiz_Details = pickle.load(f)
 
@@ -106,15 +106,14 @@ async def write(ctx, file, question):
 
     await ctx.send(output)
 
-    ans = input("Input answer: ").lower()
     try:
-        await  ctx.send("Input answer: ")
-        ans = ctx.bot.wait_for('message', check = check, timeout = 30.0)
+        await ctx.send("Input answer: ")
+        ans = await ctx.bot.wait_for("message", check=check, timeout=30.0)
         ans = ans.content
     except asyncio.TimeoutError:
         print("You took too long to respond.")
-    
-    final, pc = answercheck(ctx, Quiz_Details["A"][question], ans, "n")
+
+    final, pc = await answercheck(ctx, Quiz_Details["A"][question], ans, "n")
     if final == Quiz_Details["A"][question]:
         if pc == "c":
             await ctx.send("Correct!")
@@ -134,7 +133,7 @@ async def write(ctx, file, question):
 async def mutlichoice(ctx, file, question):
     def check(message):
         return message.author == ctx.author and message.channel == ctx.channel
-        
+
     letter = ["A", "B", "C", "D"]
 
     with open(file, "rb") as f:
@@ -158,14 +157,14 @@ async def mutlichoice(ctx, file, question):
 
     for i in range(0, 4):
         await ctx.send(f"{letter[i]}) {mchoices[i]}")
-        
+
     try:
         await ctx.send("Input answer: ")
-        letterans = ctx.bot.wait_for('message', check = check, timeout=30.0)
-        letterans = letterans.content
+        letterans = await ctx.bot.wait_for("message", check=check, timeout=30.0)
+        letterans = letterans.content.lower()
     except asyncio.TimeoutError:
-        print('You took too long to respond.')
-    
+        print("You took too long to respond.")
+
     ans = ""
 
     if letterans == "a":
@@ -183,7 +182,7 @@ async def mutlichoice(ctx, file, question):
     else:
         ans = letterans
 
-    final, pc = answercheck(ctx, Quiz_Details["A"][question], ans, "n")
+    final, pc = await answercheck(ctx, Quiz_Details["A"][question], ans, "n")
     if final == Quiz_Details["A"][question]:
         if pc == "c":
             await ctx.send("Correct!")
@@ -197,3 +196,67 @@ async def mutlichoice(ctx, file, question):
         await ctx.send("False")
 
     return correct
+
+
+async def learn(ctx, qn: int, rangein: int, rangeout: int, file: str):
+    def check(message):
+        return message.author == ctx.author and message.channel == ctx.channel
+
+    # Initialze vars
+    asking = True
+    totalscore = rangeout - (rangein - 1)
+    multichoice = {}
+    write = {}
+
+    # Add question indexs
+    for add in range(rangein - 1, rangeout):
+        multichoice[add] = 0
+
+    # Ask a segment of questions
+    while asking == True:
+        # Check for value of multichoice and if so switch it to write
+        remove = []
+        for key, value in multichoice.items():
+            if value >= 2:
+                remove.append(key)
+                write[key] = 0
+        for key in remove:
+            del multichoice[key]
+
+        # Combine dicts into one for asking questions
+        combined_dict = {}
+        for key in multichoice.keys():
+            combined_dict[key] = 0
+        for key in write.keys():
+            combined_dict[key] = 1
+
+        # Ask multichoice and write questions in order
+        for key in range(rangein - 1, rangeout):
+            if combined_dict.get(key) == 0:
+                correct = 0
+                correct = await multichoice(ctx, file=file, question=key)
+                if correct > 0:
+                    multichoice[key] += 1
+            else:
+                correct = 0
+                correct = await write(ctx, file=file, question=key)
+                if correct > 0:
+                    write[key] += 1
+
+        try:
+            await ctx.send("Type anything to continue: ")
+            dump = await ctx.bot.wait_for("message", check=check, timeout=30.0)
+        except asyncio.TimeoutError:
+            print("You took too long to respond.")
+
+        # Check whether loop is finished
+        total = 0
+        for value in write.values():
+            total += value
+        if total >= totalscore:
+            asking = False
+            try:
+                await ctx.send("Type anything to continue: ")
+                dump = await ctx.bot.wait_for("message", check=check, timeout=30.0)
+            except asyncio.TimeoutError:
+                print("You took too long to respond.")
