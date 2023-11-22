@@ -116,7 +116,7 @@ async def write(ctx, file, question):
     final, pc = await answercheck(ctx, Quiz_Details["A"][question], ans, "n")
     if final == Quiz_Details["A"][question]:
         if pc == "c":
-            await ctx.send("Correct!")
+            await displaycard(ctx, heading='--------------------', message={'‎----------': '‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ \n‎‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ \n‎       Correct!     \n ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ \n ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ '})
             correct += 1
         if pc == "nq":
             await ctx.send(
@@ -124,7 +124,7 @@ async def write(ctx, file, question):
             )
             correct += 1
     else:
-        await ctx.send("False")
+        await displaycard(ctx, heading='--------------------', message={'‎----------': '‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ \n‎‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ \n‎       False!       \n ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ \n ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ '})
 
     return correct
 
@@ -185,7 +185,7 @@ async def mutlichoice(ctx, file, question):
     final, pc = await answercheck(ctx, Quiz_Details["A"][question], ans, "n")
     if final == Quiz_Details["A"][question]:
         if pc == "c":
-            await ctx.send("Correct!")
+            await displaycard(ctx, heading='--------------------', message={'‎----------': '‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ \n‎‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ \n‎       Correct!     \n ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ \n ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ '})
             correct += 1
         if pc == "nq":
             await ctx.send(
@@ -193,7 +193,7 @@ async def mutlichoice(ctx, file, question):
             )
             correct += 1
     else:
-        await ctx.send("False")
+        await displaycard(ctx, heading='--------------------', message={'‎----------': '‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ \n‎‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ \n‎       False!       \n ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ \n ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ '})
 
     return correct
 
