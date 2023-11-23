@@ -1,6 +1,6 @@
 import pickle
 from discord.ext import commands
-from cogs.common_functions import quizselect
+from cogs.common_functions import quizselect, displaycard
 import asyncio
 
 
@@ -10,15 +10,10 @@ class Listquiz(commands.Cog):
 
     @commands.command()
     async def listquizes(self, ctx):
-        def check(message):
-            return message.author == ctx.author and message.channel == ctx.channel
+        messages = {"Question": [], "Answer": []}
 
-        try:
-            await ctx.send("Input Username: ")
-            username = await self.bot.wait_for("message", check=check, timeout=30.0)
-            username = username.content
-        except asyncio.TimeoutError:
-            await ctx.send("You took too long to respond.")
+        username = ctx.author
+
         file = await quizselect(ctx, username=username)
 
         with open(file, "rb") as f:
@@ -26,12 +21,13 @@ class Listquiz(commands.Cog):
 
         qn = int(len(Quiz_Details["Q"]))
 
-        await ctx.send("\n_______________")
-        for question in range(0, qn):
-            await ctx.send(
-                f"{Quiz_Details['Q'][question]}: {Quiz_Details['A'][question]}"
-            )
-        await ctx.send("_______________")
+        for question in range(qn):
+            messages["Question"].append(f'{Quiz_Details["Q"][question]}\n')
+            messages["Answer"].append(f'{Quiz_Details["A"][question]}\n')
+
+        name = file.split("/")[-1]
+        name = name[:-4]
+        await displaycard(ctx, heading=name, displaymessage=messages)
 
 
 async def setup(bot):

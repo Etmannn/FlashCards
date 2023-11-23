@@ -19,19 +19,15 @@ class Createfile(commands.Cog):
         def check(message):
             return message.author == ctx.author and message.channel == ctx.channel
 
-        # Delete
-        try:
-            await ctx.send("Input Username: ")
-            username = await self.bot.wait_for("message", check=check, timeout=30.0)
-            username = username.content
-        except asyncio.TimeoutError:
-            await ctx.send("You took too long to respond.")
-        # Grab username 
+        username = ctx.author
 
         try:
             await ctx.send("Input quiz name: ")
             quizname = await self.bot.wait_for("message", check=check, timeout=30.0)
             quizname = quizname.content
+            if quizname > 20:
+                subract = len(quizname) - 20
+                quizname[:-subract]
         except asyncio.TimeoutError:
             await ctx.send("You took too long to respond.")
 

@@ -13,15 +13,7 @@ class Deletequiz(commands.Cog):
         def check(message):
             return message.author == ctx.author and message.channel == ctx.channel
 
-        # Delete
-        try:
-            await ctx.send("Input username: ")
-            username = await self.bot.wait_for("message", check=check, timeout="30.0")
-            username = username.content
-        except asyncio.TimeoutError:
-            await ctx.send("You took too long to respond.")
-
-        # Grab username
+        username = ctx.author
 
         # Select Quiz
         file = await quizselect(ctx, username=username)

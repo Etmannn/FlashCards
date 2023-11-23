@@ -6,29 +6,51 @@ import discord
 import asyncio
 
 
+async def displaycard(ctx, heading, displaymessage: dict):
+    displaycard = discord.Embed(title=heading, color=0x667A14)
+
+    for key in displaymessage:
+        message = ""
+        for i in displaymessage[key]:
+            message += i
+
+        displaycard.add_field(name=key, value=message, inline=True)
+
+    await ctx.send(embed=displaycard)
+
+
 # List quizes given a username
 async def list(ctx, username):
+    messages = {
+        "My Personal Quizes": [],
+        "My Shared Quizes": [],
+    }
+
     options = os.listdir(f"userfiles/{username}")
+
     for option in options:
         if ".pkl" not in option:
             options.remove(option)
+
     n = 0
-    await ctx.send("My Quizes:\n---------------")
     for i in options:
         i = i.replace(".pkl", "")
-        await ctx.send(f"{i}({n})")
+        messages["My Personal Quizes"].append(f"{n}: {i}\n")
         n += 1
-    await ctx.send("---------------\n")
 
     soptions = os.listdir(f"userfiles/{username}/shared")
     if len(soptions) > 0:
         n = 0
-        await ctx.send("Shared Quizes:\n---------------")
         for i in soptions:
             i = i.replace(".pkl", "")
-            await ctx.send(f"{i}(0{n})")
+            messages["My Shared Quizes"].append(f"{n}: {i}\n")
             n += 1
-        await ctx.send("---------------")
+
+    await displaycard(
+        ctx,
+        heading="My Quizes",
+        displaymessage=messages,
+    )
 
 
 # Select a quiz given a username
@@ -36,34 +58,38 @@ async def quizselect(ctx, username):
     def check(message):
         return message.author == ctx.author and message.channel == ctx.channel
 
-    await list(ctx, username=username)
-    options = os.listdir(f"userfiles/{username}")
-    soptions = os.listdir(f"userfiles/{username}/shared")
+    try:
+        await list(ctx, username=username)
+        options = os.listdir(f"userfiles/{username}")
+        soptions = os.listdir(f"userfiles/{username}/shared")
 
-    validinput = False
-    while validinput == False:
-        try:
-            await ctx.send("Choose a quiz: ")
-            choice = await ctx.bot.wait_for("message", check=check, timeout=30.0)
-            choice = choice.content
-        except asyncio.TimeoutError:
-            print("You took too long to respond.")
-        else:
+        validinput = False
+        while validinput == False:
             try:
-                if len(str(choice)) == 1:
-                    file = f"userfiles/{username}/{options[int(choice)]}"
-                if len(str(choice)) == 2:
-                    file = f"userfiles/{username}/shared/{soptions[int(choice)]}"
-            except IndexError:
-                await ctx.send("Not a valid option")
+                await ctx.send("Choose a quiz: ")
+                choice = await ctx.bot.wait_for("message", check=check, timeout=30.0)
+                choice = choice.content
+            except asyncio.TimeoutError:
+                await ctx.send("You took too long to respond.")
+                break
             else:
-                validinput = True
+                try:
+                    if len(str(choice)) == 1:
+                        file = f"userfiles/{username}/{options[int(choice)]}"
+                    if len(str(choice)) == 2:
+                        file = f"userfiles/{username}/shared/{soptions[int(choice)]}"
+                except IndexError:
+                    await ctx.send("Not a valid option")
+                else:
+                    validinput = True
+                    return file
 
-    return file
+    except TypeError:
+        pass
 
 
 # Check how close an answer is to correct
-async def answercheck(ctx, Cans: str, Ians: str, perfect: str):
+async def answercheck(Cans: str, Ians: str, perfect: str):
     if perfect == "n":
         if len(Cans) < 4:
             threshold = 100
@@ -111,7 +137,7 @@ async def write(ctx, file, question):
         ans = await ctx.bot.wait_for("message", check=check, timeout=30.0)
         ans = ans.content
     except asyncio.TimeoutError:
-        print("You took too long to respond.")
+        await ctx.send("You took too long to respond.")
 
     final, pc = await answercheck(ctx, Quiz_Details["A"][question], ans, "n")
     if final == Quiz_Details["A"][question]:
@@ -163,7 +189,7 @@ async def mutlichoice(ctx, file, question):
         letterans = await ctx.bot.wait_for("message", check=check, timeout=30.0)
         letterans = letterans.content.lower()
     except asyncio.TimeoutError:
-        print("You took too long to respond.")
+        await ctx.send("You took too long to respond.")
 
     ans = ""
 
@@ -247,7 +273,7 @@ async def learn(ctx, qn: int, rangein: int, rangeout: int, file: str):
             await ctx.send("Type anything to continue: ")
             dump = await ctx.bot.wait_for("message", check=check, timeout=30.0)
         except asyncio.TimeoutError:
-            print("You took too long to respond.")
+            await ctx.send("You took too long to respond.")
 
         # Check whether loop is finished
         total = 0
@@ -259,4 +285,4 @@ async def learn(ctx, qn: int, rangein: int, rangeout: int, file: str):
                 await ctx.send("Type anything to continue: ")
                 dump = await ctx.bot.wait_for("message", check=check, timeout=30.0)
             except asyncio.TimeoutError:
-                print("You took too long to respond.")
+                await ctx.send("You took too long to respond.")

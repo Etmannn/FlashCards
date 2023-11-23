@@ -19,12 +19,7 @@ class Learn(commands.Cog):
         rangeinlist = [1]
         rangeoutlist = []
 
-        try:
-            await ctx.send("Input username: ")
-            username = await self.bot.wait_for("message", check=check, timeout=30.0)
-            username = username.content
-        except asyncio.TimeoutError:
-            await ctx.send("You took too long to respond.")
+        username = ctx.author
 
         file = await quizselect(ctx, username=username)
 
