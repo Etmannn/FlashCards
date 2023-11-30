@@ -27,7 +27,7 @@ class Listquiz(commands.Cog):
 
         name = file.split("/")[-1]
         name = name[:-4]
-        await displaycard(ctx, heading=name, displaymessage=messages)
+        await displaycard(ctx, heading=name, displaymessage=messages, inline=True)
 
 
 async def setup(bot):

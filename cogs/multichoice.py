@@ -1,6 +1,6 @@
 import pickle
 from discord.ext import commands
-from cogs.common_functions import quizselect, mutlichoice
+from cogs.common_functions import quizselect, multichoice, displaycard
 import asyncio
 
 
@@ -22,14 +22,22 @@ class Multichoice(commands.Cog):
         qn = int(len(Quiz_Details["Q"]))
 
         if qn < 4:
-            await ctx.send("You need a minimum of 4 questions to use multichoice")
+            await displaycard(
+                ctx,
+                heading="Error",
+                displaymessage={
+                    "You need a minimum of 4 questions to use multichoice": ""
+                },
+                inline=False,
+            )
         else:
             correctans = 0
             for i in range(qn):
-                correct = await mutlichoice(ctx, file=file, question=i)
+                correct = await multichoice(ctx, file=file, question=i)
                 correctans += correct
 
-            await ctx.send(f"You got {correctans} out of {qn}")
+            output = f"You got {correctans} out of {qn}"
+            await displaycard(ctx, heading="Score", displaymessage={output: ""})
 
 
 async def setup(bot):
