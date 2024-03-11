@@ -39,8 +39,8 @@ async def list(ctx, username):
         n += 1
 
     soptions = os.listdir(f"userfiles/{username}/shared")
+
     if len(soptions) > 0:
-        n = 0
         for i in soptions:
             i = i.replace(".pkl", "")
             messages["My Shared Quizes"].append(f"{n}: {i}\n")
@@ -73,7 +73,7 @@ async def quizselect(ctx, username):
                     if len(str(choice)) == 1:
                         file = f"userfiles/{username}/{options[int(choice)]}"
                     if len(str(choice)) == 2:
-                        file = f"userfiles/{username}/shared/{soptions[int(choice)]}"
+                        file = f"userfiles/{username}/shared/{soptions[int(choice-len(options))]}"
                 except IndexError:
                     await ctx.send("Not a valid option")
                 else:
@@ -86,6 +86,8 @@ async def quizselect(ctx, username):
 
 # Check how close an answer is to correct
 async def answercheck(ctx, Cans: str, Ians: str, perfect: str):
+
+    sim = fuzz.ratio((Cans.lower()), (Ians.lower()))
     if perfect == "n":
         if len(Cans) < 4:
             threshold = 100
@@ -95,20 +97,20 @@ async def answercheck(ctx, Cans: str, Ians: str, perfect: str):
             threshold = 85
         else:
             threshold = 80
-
-        sim = fuzz.ratio((Cans.lower()), (Ians.lower()))
         if sim == 100:
             pc = "c"
-            final = Cans
-            return final, pc
         elif sim >= threshold:
-            final = Cans
             pc = "nq"
-            return final, pc
         else:
-            final = Ians
             pc = "n"
-            return final, pc
+
+    else:
+        if sim == 100:
+            pc = "c"
+        else:
+            pc = "n"
+
+    return Cans, pc
 
 
 # Ask a question in a write format
@@ -230,27 +232,27 @@ async def multichoice(ctx, file, question):
     else:
         ans = letterans
 
-    final, pc = await answercheck(ctx, Quiz_Details["A"][question], ans, "n")
-    if final == Quiz_Details["A"][question]:
-        if pc == "c":
-            await displaycard(
-                ctx,
-                heading="Correct",
-                displaymessage={"Well Done!": "score +1"},
-                inline=False,
-            )
-            correct += 1
-        if pc == "nq":
-            output = f"Not quite but close enough. The correct answer is {final}."
-            await displaycard(
-                ctx,
-                heading="Correct",
-                displaymessage={output: "score +1"},
-                inline=False,
-            )
-            correct += 1
-    else:
-        output = f"The Correct answer is {final}"
+    Cans, pc = await answercheck(ctx, Quiz_Details["A"][question], ans, "y")
+    if pc == "c":
+        await displaycard(
+            ctx,
+            heading="Correct",
+            displaymessage={"Well Done!": "score +1"},
+            inline=False,
+        )
+        correct += 1
+    if pc == "nq":
+        output = f"Not quite but close enough. The correct answer is {Cans}."
+        await displaycard(
+            ctx,
+            heading="Correct",
+            displaymessage={output: "score +1"},
+            inline=False,
+        )
+        correct += 1
+
+    if pc == "n":
+        output = f"The Correct answer is {Cans}"
         await displaycard(
             ctx, heading="False!", displaymessage={output: "score +0"}, inline=False
         )
@@ -274,6 +276,8 @@ async def learn(ctx, qn: int, rangein: int, rangeout: int, file: str):
 
     # Ask a segment of questions
     while asking == True:
+        # Reset score
+        score = 0
         # Check for value of multichoice and if so switch it to write
         remove = []
         for key, value in mc.items():
@@ -297,13 +301,22 @@ async def learn(ctx, qn: int, rangein: int, rangeout: int, file: str):
                 correct = await multichoice(ctx, file=file, question=key)
                 if correct > 0:
                     mc[key] += 1
+                    score += 1
             else:
                 correct = 0
                 correct = await write(ctx, file=file, question=key)
                 if correct > 0:
                     w[key] += 1
+                    score += 1
 
         try:
+            output = f"You scored {score} out of {totalscore}"
+            await displaycard(
+                ctx,
+                heading="Score",
+                displaymessage={output: ""},
+                inline=False,
+            )
             await ctx.send("Type anything to continue: ")
             dump = await ctx.bot.wait_for("message", check=check, timeout=30.0)
         except asyncio.TimeoutError:
